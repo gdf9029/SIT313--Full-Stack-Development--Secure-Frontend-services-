@@ -28,7 +28,6 @@ body {
 .hover-text{
     position: absolute;
     bottom: 0;
-    left: 0;
     width: 100%; /* Full width of browser window */
     background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
     color: white;
