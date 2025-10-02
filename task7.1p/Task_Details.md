@@ -28,26 +28,26 @@ This report documents the complete implementation of a secure authentication sys
 
 ## 📁 **Complete File Structure & Implementation**
 
-```
+
 client/
 ├── src/
-│   ├── components/              # React Components
-│   │   ├── Home.jsx            # Main homepage with auth integration
-│   │   ├── Login.jsx           # User login page
-│   │   └── SignUp.jsx          # User registration page
-│   ├── firebase/               # Firebase Configuration
-│   │   └── config.js           # Firebase initialization & setup
-│   ├── services/               # Business Logic Services
-│   │   └── authService.js      # Authentication logic & API calls
-│   ├── App.jsx                 # Main application with routing
-│   └── main.jsx                # Application entry point
-├── .env                        # Environment variables (Firebase config)
-├── .env.example               # Environment template
-├── README_AUTH.md             # Project documentation
-└── package.json               # Dependencies and scripts
-```
+│   ├── components/              React Components
+│   │   ├── Home.jsx             Main homepage with auth integration
+│   │   ├── Login.jsx            User login page
+│   │   └── SignUp.jsx           User registration page
+│   ├── firebase/                Firebase Configuration
+│   │   └── config.js            Firebase initialization & setup
+│   ├── services/               Business Logic Services
+│   │   └── authService.js      Authentication logic & API calls
+│   ├── App.jsx                 Main application with routing
+│   └── main.jsx                Application entry point
+├── .env                        Environment variables (Firebase config)
+├── .env.example                Environment template
+├── README_AUTH.md              Project documentation
+└── package.json                Dependencies and scripts
 
----
+
+
 
 ## 🔍 **Detailed Code Analysis**
 
