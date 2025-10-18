@@ -127,7 +127,8 @@ export const isValidPassword = (password) => {
 
 export const signOutUser = async () => {
   try {
-    await signOut(auth);
+    // Simply clear localStorage - this is what you're actually using
+    localStorage.removeItem('user');
     console.log('User signed out successfully');
     return true;
   } catch (error) {

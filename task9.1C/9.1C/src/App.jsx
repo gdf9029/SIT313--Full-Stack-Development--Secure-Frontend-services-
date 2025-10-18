@@ -5,6 +5,7 @@ import Login from './components/Login';
 import SignUp from './components/SignUp';
 import NewPost from './components/NewPost';
 import FindQuestion from './components/FindQuestion';
+import SignOut from './components/SignOut';
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/new-post" element={<NewPost />} />
                     <Route path="/find-question" element={<FindQuestion />} />
+                    <Route path="/signout" element={<SignOut />} />
                 </Routes>
             </div>
         </Router>

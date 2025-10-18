@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Star, Facebook, Twitter, Instagram } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { signOutUser } from '../services/authService';
 
 // --- MOCK DATA ---
 const featuredArticles = [
@@ -64,34 +65,35 @@ const Header = ({ user, onLogout }) => {
     };
 
     const handlePostClick = () => {
-        console.log('Post button clicked!'); // Debug log
+        console.log('Post button clicked!');
         
-        // Check if user is logged in
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
-            // User is logged in, go directly to new post
             navigate('/new-post');
         } else {
-            // User not logged in, redirect to login first
             navigate('/login');
         }
     };
 
     const handleFindQuestionClick = () => {
-        // Check if user is logged in
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
-            // User is logged in, go to find question page
             navigate('/find-question');
         } else {
-            // User not logged in, redirect to login first
             navigate('/login');
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('user');
-        onLogout();
+    const handleLogout = async () => {
+        try {
+            await signOutUser();
+            localStorage.removeItem('user');
+            onLogout();
+            navigate('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+            alert('Error logging out: ' + error.message);
+        }
     };
 
     return (
@@ -260,17 +262,29 @@ const Footer = () => (
 // --- MAIN APP COMPONENT ---
 const Home = () => {
     const [user, setUser] = useState(null);
+    const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
-        // Check if user is logged in
+        // Check if user is logged in - run on mount and whenever location changes
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
-            setUser(JSON.parse(savedUser));
+            try {
+                setUser(JSON.parse(savedUser));
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                localStorage.removeItem('user');
+                setUser(null);
+            }
+        } else {
+            setUser(null);
         }
-    }, []);
+    }, [location]); // Add location as dependency to re-check on navigation
 
     const handleLogout = () => {
+        localStorage.removeItem('user');
         setUser(null);
+        navigate('/login');
     };
 
     return (
