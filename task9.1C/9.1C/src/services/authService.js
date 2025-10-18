@@ -9,8 +9,6 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import bcrypt from 'bcryptjs';
-import { auth } from '../firebase/config.js';
-import { signOut } from 'firebase/auth';
 
 // Collection reference
 const usersCollection = collection(db, 'users');
@@ -127,7 +125,6 @@ export const isValidPassword = (password) => {
 
 export const signOutUser = async () => {
   try {
-    // Simply clear localStorage - this is what you're actually using
     localStorage.removeItem('user');
     console.log('User signed out successfully');
     return true;
