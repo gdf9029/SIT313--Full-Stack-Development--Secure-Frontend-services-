@@ -89,15 +89,11 @@ const Header = ({ user, onLogout }) => {
         }
     };
 
-   const handleLogout = () => {
-  if (window.confirm('Are you sure you want to logout?')) {
-    const result = signOut();
-    if (result.success) {
-      alert('You have been logged out successfully!');
-      navigate('/login');
-    }
-  }
-};
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        onLogout();
+    };
+
     return (
         <header className="bg-white shadow-sm py-4 px-6 md:px-10">
             <div className="container mx-auto flex justify-between items-center">

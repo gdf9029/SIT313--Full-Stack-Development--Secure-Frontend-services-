@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { loginUser, isValidEmail, signOut } from '../services/authService';
-import { User, LogOut, Home as HomeIcon } from 'lucide-react';
+import { loginUser, isValidEmail, signOutUser } from '../services/authService';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,44 +10,24 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    // Check if user is logged in
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setIsLoggedIn(true);
+      setCurrentUser(JSON.parse(savedUser));
+    }
+    
     // Check for success message from registration
     if (location.state?.message) {
       setSuccessMessage(location.state.message);
     }
   }, [location.state]);
-
-  // Check if user is already logged in
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      try {
-        const userData = JSON.parse(savedUser);
-        setCurrentUser(userData);
-      } catch (error) {
-        console.error('Error parsing saved user:', error);
-        localStorage.removeItem('user');
-      }
-    }
-  }, []);
-
-  // Handle sign out from login page
-  const handleSignOut = () => {
-    if (window.confirm('Are you sure you want to sign out?')) {
-      const result = signOut();
-      if (result.success) {
-        setCurrentUser(null);
-        setSuccessMessage('Signed out successfully! You can now login with a different account.');
-        setTimeout(() => setSuccessMessage(''), 5000);
-      } else {
-        setErrors({ submit: 'Error signing out. Please try again.' });
-      }
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,12 +75,10 @@ const Login = () => {
       if (result.success) {
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(result.user));
-        localStorage.setItem('userEmail', result.user.email);
-        localStorage.setItem('userName', result.user.name);
+        setIsLoggedIn(true);
+        setCurrentUser(result.user);
         // Redirect to home page
-        navigate('/', { 
-          state: { message: 'Login successful!' }
-        });
+        navigate('/');
       } else {
         setErrors({ submit: result.message });
       }
@@ -112,58 +89,55 @@ const Login = () => {
     }
   };
 
-  // If user is already logged in, show different UI
-  if (currentUser) {
+  const handleSignOut = async () => {
+    try {
+      await signOutUser();
+      // Clear localStorage
+      localStorage.removeItem('user');
+      // Update state
+      setIsLoggedIn(false);
+      setCurrentUser(null);
+      setFormData({ email: '', password: '' });
+      setSuccessMessage('You have been signed out successfully');
+    } catch (error) {
+      setErrors({ submit: 'Sign-out failed. Please try again.' });
+    }
+  };
+
+  // If user is logged in, show logged-in view
+  if (isLoggedIn && currentUser) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">DEV@Deakin</h1>
-            <h2 className="text-xl text-gray-600">Already Logged In</h2>
+            <h2 className="text-xl text-gray-600">User Dashboard</h2>
           </div>
         </div>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10 border-2 border-blue-500">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-              <div className="flex items-center gap-3 mb-4">
-                <User className="w-6 h-6 text-blue-600" />
-                <div>
-                  <p className="text-sm text-gray-600">You are currently logged in as</p>
-                  <p className="font-semibold text-gray-800">{currentUser.email}</p>
-                  {currentUser.name && (
-                    <p className="text-sm text-gray-600">{currentUser.name} {currentUser.lastName}</p>
-                  )}
+            <div className="space-y-6">
+              <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                <p className="text-sm text-green-600 font-medium mb-2">Currently Logged In</p>
+                <div className="space-y-2">
+                  <p className="text-gray-700"><strong>Name:</strong> {currentUser.name} {currentUser.lastName}</p>
+                  <p className="text-gray-700"><strong>Email:</strong> {currentUser.email}</p>
                 </div>
               </div>
-            </div>
 
-            {successMessage && (
-              <div className="bg-green-50 border border-green-200 rounded-md p-3 mb-4">
-                <p className="text-sm text-green-600">{successMessage}</p>
-              </div>
-            )}
-
-            {errors.submit && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
-                <p className="text-sm text-red-600">{errors.submit}</p>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <button
-                onClick={() => navigate('/')}
-                className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <HomeIcon className="w-4 h-4" />
-                Go to Home
-              </button>
               <button
                 onClick={handleSignOut}
-                className="w-full flex items-center justify-center gap-2 bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition-colors"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
-                <LogOut className="w-4 h-4" />
                 Sign Out
+              </button>
+
+              <button
+                onClick={() => navigate('/')}
+                className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Back to Home
               </button>
             </div>
           </div>
@@ -172,7 +146,7 @@ const Login = () => {
     );
   }
 
-  // Regular login form for users who are not logged in
+  // If user is not logged in, show login form
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -272,7 +246,7 @@ const Login = () => {
                   className="font-medium text-blue-600 hover:text-blue-500"
                 >
                   Sign up
-                </Link>
+              </Link>
               </p>
             </div>
           </div>

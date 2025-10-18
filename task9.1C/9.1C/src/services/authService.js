@@ -9,6 +9,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import bcrypt from 'bcryptjs';
+import { auth } from '../firebase/config.js';
+import { signOut } from 'firebase/auth';
 
 // Collection reference
 const usersCollection = collection(db, 'users');
@@ -123,26 +125,13 @@ export const isValidPassword = (password) => {
   return passwordRegex.test(password);
 };
 
-// Sign out user
-export const signOut = () => {
+export const signOutUser = async () => {
   try {
-    // Clear all user data from localStorage
-    localStorage.removeItem('user');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
-    
-    // Clear sessionStorage as well
-    sessionStorage.clear();
-    
-    return { 
-      success: true, 
-      message: 'Signed out successfully' 
-    };
+    await signOut(auth);
+    console.log('User signed out successfully');
+    return true;
   } catch (error) {
-    console.error('Error during sign out:', error);
-    return { 
-      success: false, 
-      message: 'Error signing out' 
-    };
+    console.error('Sign-out error:', error.message);
+    throw error;
   }
 };
