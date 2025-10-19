@@ -1,18 +1,35 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET || process.env.STRIPE_SECRET_KEY);
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET || process.env.STRIPE_SECRET_KEY);
+
+// CORS headers for cross-origin requests
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-Type": "application/json",
+};
 
 /**
  * Netlify Function: Create Payment Intent
  * Handles POST requests to create a Stripe payment intent for premium plan subscription
  */
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
+  // Handle CORS preflight requests
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({ message: "OK" }),
+    };
+  }
+
   // Verify Stripe key is configured
   if (!process.env.STRIPE_SECRET && !process.env.STRIPE_SECRET_KEY) {
     console.error('STRIPE_SECRET or STRIPE_SECRET_KEY environment variable not set');
     return {
       statusCode: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: corsHeaders,
       body: JSON.stringify({ 
         error: "Payment service not configured. Please contact support.",
         details: "Missing Stripe secret key configuration"
@@ -24,9 +41,7 @@ exports.handler = async (event, context) => {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: corsHeaders,
       body: JSON.stringify({ error: "Method not allowed" }),
     };
   }
@@ -39,9 +54,7 @@ exports.handler = async (event, context) => {
     } catch (parseError) {
       return {
         statusCode: 400,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: corsHeaders,
         body: JSON.stringify({ error: "Invalid JSON in request body" }),
       };
     }
@@ -52,9 +65,7 @@ exports.handler = async (event, context) => {
     if (!amount) {
       return {
         statusCode: 400,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: corsHeaders,
         body: JSON.stringify({ error: "Missing amount parameter" }),
       };
     }
@@ -62,9 +73,7 @@ exports.handler = async (event, context) => {
     if (!email) {
       return {
         statusCode: 400,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: corsHeaders,
         body: JSON.stringify({ error: "Missing email parameter" }),
       };
     }
@@ -86,9 +95,7 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
@@ -99,9 +106,7 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
         error: error.message || "Failed to create payment intent",
       }),

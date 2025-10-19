@@ -1,7 +1,11 @@
 [build]
   command = "CI= npm run build"
   functions = "netlify/functions"
-  publish = "."
+  publish = "dist"
+
+[dev]
+  command = "npm run dev"
+  targetPort = 5173
 
 [[redirects]]
   from = '/api/*'

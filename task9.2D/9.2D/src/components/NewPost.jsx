@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadImage, savePost, saveQuestion } from '../services/postService';
+import ReactMarkdown from 'react-markdown';
 
 const Card = ({ children, className = '' }) => (
     <div className={`bg-white shadow-md rounded-lg p-6 sm:p-8 ${className}`}>
@@ -22,9 +23,9 @@ const Input = (props) => (
     />
 );
 
-const TextArea = (props) => (
+const TextArea = ({ className = '', ...props }) => (
     <textarea
-        className="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+        className={className || "shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"}
         rows="6"
         {...props}
     ></textarea>
@@ -131,38 +132,86 @@ const ImageUpload = ({ onImageUpload, imageUrl, isUploading }) => {
     );
 };
 
-const QuestionForm = ({ formData, setFormData }) => (
-    <div>
-        {/* This entire section is rendered only when 'Question' is selected */}
-        <div className="bg-gray-100 p-4 rounded-md mb-6">
-            <h2 className="font-bold text-lg text-gray-800">What do you want to ask or share</h2>
-            <p className="text-sm text-gray-600 mt-1">This section is designed based on the type of the post. It could be developed by conditional rendering. <span className="font-semibold text-red-600">For post a question, the following section would be appeared.</span></p>
+const QuestionForm = ({ formData, setFormData, isCoding = false }) => {
+    const [showPreview, setShowPreview] = useState(false);
+
+    return (
+        <div>
+            {/* This entire section is rendered only when 'Question' is selected */}
+            <div className="bg-gray-100 p-4 rounded-md mb-6">
+                <h2 className="font-bold text-lg text-gray-800">What do you want to ask or share</h2>
+                <p className="text-sm text-gray-600 mt-1">This section is designed based on the type of the post. It could be developed by conditional rendering. <span className="font-semibold text-red-600">For post a question, the following section would be appeared.</span></p>
+            </div>
+            <FormField label="Title">
+                <Input 
+                    type="text" 
+                    placeholder="Start your question with how, what, why, etc."
+                    value={formData.title}
+                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                />
+            </FormField>
+            <FormField label="Describe your problem">
+                <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                        <span></span>
+                        <button
+                            type="button"
+                            onClick={() => setShowPreview(!showPreview)}
+                            className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition"
+                        >
+                            {showPreview ? '✏️ Edit' : '👁️ Preview'}
+                        </button>
+                    </div>
+                    {!showPreview ? (
+                        <TextArea 
+                            placeholder="Describe your problem in detail (supports Markdown)..."
+                            value={formData.description}
+                            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                        />
+                    ) : (
+                        <div className="bg-gray-50 p-4 rounded border border-gray-300 prose prose-sm max-w-none">
+                            <ReactMarkdown>{formData.description}</ReactMarkdown>
+                        </div>
+                    )}
+                </div>
+            </FormField>
+            
+            {isCoding && (
+                <>
+                    <FormField label="Programming Language">
+                        <select 
+                            className="shadow-sm appearance-none border rounded-md w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                            value={formData.codeLanguage}
+                            onChange={(e) => setFormData(prev => ({ ...prev, codeLanguage: e.target.value }))}
+                        >
+                            <option value="javascript">JavaScript</option>
+                            <option value="python">Python</option>
+                            <option value="java">Java</option>
+                            <option value="cpp">C/C++</option>
+                        </select>
+                    </FormField>
+                    <FormField label="Code Snippet">
+                        <TextArea 
+                            placeholder="Paste your code here..."
+                            value={formData.code}
+                            onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value }))}
+                            className="bg-gray-900 text-green-400 font-mono text-sm p-4"
+                        />
+                    </FormField>
+                </>
+            )}
+            
+            <FormField label="Tags">
+                <Input 
+                    type="text" 
+                    placeholder="Please add up to 3 tags to describe what your question is about e.g., Java"
+                    value={formData.tags}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                />
+            </FormField>
         </div>
-        <FormField label="Title">
-            <Input 
-                type="text" 
-                placeholder="Start your question with how, what, why, etc."
-                value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            />
-        </FormField>
-        <FormField label="Describe your problem">
-            <TextArea 
-                placeholder="Describe your problem in detail..."
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-            />
-        </FormField>
-        <FormField label="Tags">
-            <Input 
-                type="text" 
-                placeholder="Please add up to 3 tags to describe what your question is about e.g., Java"
-                value={formData.tags}
-                onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-            />
-        </FormField>
-    </div>
-);
+    );
+};
 
 const ArticleForm = ({ formData, setFormData, onImageUpload, imageUrl, isUploading }) => (
     <div>
@@ -219,7 +268,9 @@ const NewPost = () => {
         description: '',
         abstract: '',
         content: '',
-        tags: ''
+        tags: '',
+        code: '',
+        codeLanguage: 'javascript'
     });
     const [imageFile, setImageFile] = useState(null);
     const [imageUrl, setImageUrl] = useState('');
@@ -357,29 +408,71 @@ const NewPost = () => {
 
                         {/* Post Type Selection */}
                         <div className="bg-gray-100 p-4 rounded-md mb-6">
-                            <FormField label="Select Post Type:">
-                                <div className="mt-2">
-                                    <RadioButton
-                                        name="postType"
-                                        value="question"
-                                        checked={postType === 'question'}
-                                        onChange={handlePostTypeChange}
-                                        label="Question"
-                                    />
-                                    <RadioButton
-                                        name="postType"
-                                        value="article"
-                                        checked={postType === 'article'}
-                                        onChange={handlePostTypeChange}
-                                        label="Article"
-                                    />
-                                </div>
-                            </FormField>
+                            <label className="block text-gray-700 text-sm font-bold mb-4">Select Post Type:</label>
+                            <div className="flex flex-wrap gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setPostType('question');
+                                        setFormData({ title: '', description: '', abstract: '', content: '', tags: '' });
+                                        setImageFile(null);
+                                        setImageUrl('');
+                                    }}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
+                                        postType === 'question' && !formData.description
+                                            ? 'border-blue-500 bg-blue-50 text-blue-600'
+                                            : 'border-gray-300 bg-white text-gray-600 hover:border-blue-400'
+                                    }`}
+                                >
+                                    <span>❓</span>
+                                    <span className="font-semibold">Question</span>
+                                </button>
+                                
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setPostType('question-coding');
+                                        setFormData({ title: '', description: '', abstract: '', content: '', tags: '' });
+                                        setImageFile(null);
+                                        setImageUrl('');
+                                    }}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
+                                        postType === 'question-coding'
+                                            ? 'border-purple-500 bg-purple-50 text-purple-600'
+                                            : 'border-gray-300 bg-white text-gray-600 hover:border-purple-400'
+                                    }`}
+                                >
+                                    <span>💻</span>
+                                    <span className="font-semibold">Question (Coding)</span>
+                                </button>
+                                
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setPostType('article');
+                                        setFormData({ title: '', description: '', abstract: '', content: '', tags: '' });
+                                        setImageFile(null);
+                                        setImageUrl('');
+                                    }}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
+                                        postType === 'article'
+                                            ? 'border-amber-500 bg-amber-50 text-amber-600'
+                                            : 'border-gray-300 bg-white text-gray-600 hover:border-amber-400'
+                                    }`}
+                                >
+                                    <span>📝</span>
+                                    <span className="font-semibold">Article</span>
+                                </button>
+                            </div>
                         </div>
 
                         {/*Conditional rendering is applied here as implied in the tasksheet*/}
-                        {postType === 'question' ? (
-                            <QuestionForm formData={formData} setFormData={setFormData} />
+                        {postType === 'question' || postType === 'question-coding' ? (
+                            <QuestionForm 
+                                formData={formData} 
+                                setFormData={setFormData}
+                                isCoding={postType === 'question-coding'}
+                            />
                         ) : (
                             <ArticleForm 
                                 formData={formData} 
@@ -400,7 +493,7 @@ const NewPost = () => {
                                 Cancel
                             </button>
                             <Button type="submit" disabled={isSubmitting || isUploading}>
-                                {isSubmitting ? 'Posting...' : `Post ${postType === 'question' ? 'Question' : 'Article'}`}
+                                {isSubmitting ? 'Posting...' : postType === 'article' ? 'Post Article' : postType === 'question-coding' ? 'Post Coding Question' : 'Post Question'}
                             </Button>
                         </div>
                     </form>

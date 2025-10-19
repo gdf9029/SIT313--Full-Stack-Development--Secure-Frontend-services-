@@ -1,11 +1,31 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET || process.env.STRIPE_SECRET_KEY);
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET || process.env.STRIPE_SECRET_KEY);
+
+// CORS headers for cross-origin requests
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-Type": "application/json",
+};
 
 // This function creates a payment intent for the Premium Plan subscription
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
+  // Handle CORS preflight requests
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({ message: "OK" }),
+    };
+  }
+
   // Only allow POST requests
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
+      headers: corsHeaders,
       body: JSON.stringify({ error: "Method not allowed" }),
     };
   }
@@ -17,6 +37,7 @@ exports.handler = async (event, context) => {
     if (!amount || !email) {
       return {
         statusCode: 400,
+        headers: corsHeaders,
         body: JSON.stringify({ error: "Missing amount or email" }),
       };
     }
@@ -37,6 +58,7 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 200,
+      headers: corsHeaders,
       body: JSON.stringify({
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
@@ -46,6 +68,7 @@ exports.handler = async (event, context) => {
     console.error("Stripe error:", error);
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: JSON.stringify({ error: error.message }),
     };
   }

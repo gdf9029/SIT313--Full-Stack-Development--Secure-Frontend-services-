@@ -27,6 +27,7 @@
     "react-router-dom": "^7.9.3",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^2.1.5",
+    "stripe": "^19.1.0",
     "tailwindcss": "^4.1.13"
   },
   "devDependencies": {

@@ -38,13 +38,15 @@ const CheckoutForm = () => {
         }),
       });
 
+      // Read response body once as text first
+      const responseBody = await response.text();
+      
       if (!response.ok) {
         try {
-          const errorData = await response.json();
+          const errorData = JSON.parse(responseBody);
           setError(errorData.error || `Payment error: ${response.status}`);
         } catch (parseError) {
-          const responseText = await response.text();
-          console.error('Response text:', responseText);
+          console.error('Response text:', responseBody);
           setError(`Payment server error: ${response.status}. Please check that environment variables are configured.`);
         }
         setLoading(false);
@@ -53,11 +55,10 @@ const CheckoutForm = () => {
 
       let data;
       try {
-        data = await response.json();
+        data = JSON.parse(responseBody);
       } catch (parseError) {
         console.error('Failed to parse JSON:', parseError);
-        const responseText = await response.text();
-        console.error('Response text:', responseText);
+        console.error('Response text:', responseBody);
         setError('Payment server returned invalid response. Please try again.');
         setLoading(false);
         return;
