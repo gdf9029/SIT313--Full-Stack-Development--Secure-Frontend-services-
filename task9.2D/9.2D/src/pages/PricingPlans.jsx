@@ -1,16 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PricingPlans.css';
 
 const PricingPlans = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleFreePlan = () => {
     alert('You are already on the Free plan!');
   };
 
-  const handlePremiumPlan = () => {
-    navigate('/payment');
+  const handlePremiumPlan = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Get user email
+      const savedUser = localStorage.getItem('user');
+      if (!savedUser) {
+        alert('Please log in first to upgrade to Premium');
+        navigate('/login');
+        return;
+      }
+
+      const user = JSON.parse(savedUser);
+      const email = user.email || user.displayName || 'user@example.com';
+
+      // Create checkout session
+      const response = await fetch('/.netlify/functions/checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          tier: 'premium',
+        }),
+      });
+
+      const responseBody = await response.text();
+      
+      if (!response.ok) {
+        try {
+          const errorData = JSON.parse(responseBody);
+          throw new Error(errorData.error || 'Failed to create checkout session');
+        } catch (parseError) {
+          throw new Error('Payment service error. Please try again.');
+        }
+      }
+
+      const data = JSON.parse(responseBody);
+      
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setError(err.message);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -67,11 +119,21 @@ const PricingPlans = () => {
             <li>✓ Advanced code editor features</li>
           </ul>
 
-          <button className="plan-btn premium-btn" onClick={handlePremiumPlan}>
-            Upgrade to Premium
+          <button 
+            className="plan-btn premium-btn" 
+            onClick={handlePremiumPlan}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Processing...' : 'Upgrade to Premium'}
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+        </div>
+      )}
 
       <button className="back-btn" onClick={() => navigate('/')}>
         ← Back to Home
