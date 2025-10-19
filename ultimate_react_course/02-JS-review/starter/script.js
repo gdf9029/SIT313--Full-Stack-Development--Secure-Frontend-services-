@@ -157,9 +157,18 @@ publicationDate;
 genres;
 hasMovieAdaption;
 
-const primaryGenre = genres[0];
-const secondaryGenre = genres[1];
 
-console.log(primaryGenre, secondaryGenre);
+
+
 
 const [primary, secondary] = genres; // instead of using curly braces for objects we use square brackets for arrays
+
+// we also want to get all the remaining other genres into an other array
+// for that we can use the rest/spread operator ...
+const [primaryGenre, secondaryGenre, ...otherGenres] = genres;
+//...otherGenres will contain all the previous genres that we havent already destructured
+console.log(otherGenres);
+
+
+const newGenres = ["epic fantasy", ...genres];
+newGenres;
