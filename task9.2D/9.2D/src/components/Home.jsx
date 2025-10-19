@@ -117,6 +117,12 @@ const Header = ({ user, onLogout }) => {
                     >
                         Find Question
                     </button>
+                    <button 
+                        onClick={() => navigate('/plans')}
+                        className="font-semibold text-gray-600 hover:text-purple-600 transition-colors duration-200 px-3 py-1 rounded hover:bg-purple-50"
+                    >
+                        Plans
+                    </button>
                     {user ? (
                         <div className="flex items-center gap-4">
                             <span className="text-sm text-gray-600">Welcome, {user.name}!</span>

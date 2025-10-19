@@ -21,6 +21,8 @@ const CheckoutForm = () => {
     setError(null);
 
     if (!stripe || !elements) {
+      setError('Stripe is not loaded. Please refresh and try again.');
+      setLoading(false);
       return;
     }
 
@@ -36,7 +38,32 @@ const CheckoutForm = () => {
         }),
       });
 
-      const { clientSecret } = await response.json();
+      if (!response.ok) {
+        try {
+          const errorData = await response.json();
+          setError(errorData.error || `Payment error: ${response.status}`);
+        } catch (parseError) {
+          const responseText = await response.text();
+          console.error('Response text:', responseText);
+          setError(`Payment server error: ${response.status}. Please check that environment variables are configured.`);
+        }
+        setLoading(false);
+        return;
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error('Failed to parse JSON:', parseError);
+        const responseText = await response.text();
+        console.error('Response text:', responseText);
+        setError('Payment server returned invalid response. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      const { clientSecret } = data;
 
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
         clientSecret,
@@ -53,12 +80,28 @@ const CheckoutForm = () => {
       if (stripeError) {
         setError(stripeError.message);
         setLoading(false);
-      } else if (paymentIntent.status === 'succeeded') {
-        alert('Payment successful! Welcome to Premium!');
-        navigate('/');
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        alert('Payment successful! Welcome to Premium! 🎉');
+        // Store premium status in localStorage
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        user.isPremium = true;
+        user.premiumSince = new Date().toISOString();
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Redirect to home after success
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      } else if (paymentIntent && paymentIntent.status === 'requires_action') {
+        setError('Payment requires additional verification. Please complete the authentication.');
+        setLoading(false);
+      } else {
+        setError('Payment processing failed. Please try again.');
+        setLoading(false);
       }
     } catch (err) {
-      setError('Payment failed. Please try again.');
+      console.error('Payment error:', err);
+      setError(err.message || 'Payment failed. Please try again.');
       setLoading(false);
     }
   };
@@ -103,7 +146,7 @@ const CheckoutForm = () => {
 
       {error && <div className="error-message">{error}</div>}
 
-      <button type="submit" disabled={!stripe || loading} className="pay-button">
+      <button type="submit" disabled={!stripe || loading || !email} className="pay-button">
         {loading ? 'Processing...' : 'Pay $9.99'}
       </button>
 

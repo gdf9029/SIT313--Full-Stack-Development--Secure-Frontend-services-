@@ -7400,12 +7400,12 @@ function loadGapi(auth) {
     }
     if (_window().gapi?.iframes?.Iframe) {
       resolve(gapi.iframes.getContext());
-    } else if (!!_window().gapi?.load) {
+    } else if (_window().gapi?.load) {
       loadGapiIframe();
     } else {
       const cbName = _generateCallbackName("iframefcb");
       _window()[cbName] = () => {
-        if (!!gapi.load) {
+        if (gapi.load) {
           loadGapiIframe();
         } else {
           reject(_createError(

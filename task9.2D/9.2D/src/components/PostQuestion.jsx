@@ -6,6 +6,7 @@ import 'codemirror/theme/material.css';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/mode/python/python';
 import 'codemirror/mode/clike/clike';
+import 'codemirror/mode/java/java';
 import './PostQuestion.css';
 
 const PostQuestion = () => {
