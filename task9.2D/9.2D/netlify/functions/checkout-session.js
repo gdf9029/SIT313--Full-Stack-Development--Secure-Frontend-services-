@@ -50,7 +50,7 @@ export const handler = async (event, context) => {
       };
     }
 
-    const { email, tier = "premium" } = body;
+    const { email, tier = "premium", appUrl } = body;
 
     // Validate input
     if (!email) {
@@ -61,7 +61,9 @@ export const handler = async (event, context) => {
       };
     }
 
-    console.log("Creating session for email:", email, "tier:", tier);
+    // Use provided appUrl from frontend, fallback to env variable
+    const baseUrl = appUrl || process.env.VITE_APP_URL || "http://localhost:8888";
+    console.log("Creating session for email:", email, "tier:", tier, "baseUrl:", baseUrl);
 
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
@@ -85,8 +87,8 @@ export const handler = async (event, context) => {
       ],
       mode: "subscription",
       customer_email: email,
-      success_url: `${process.env.VITE_APP_URL || "http://localhost:8888"}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.VITE_APP_URL || "http://localhost:8888"}/plans`,
+      success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/plans`,
       metadata: {
         email: email,
         tier: tier,

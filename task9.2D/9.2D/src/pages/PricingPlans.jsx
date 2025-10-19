@@ -27,6 +27,10 @@ const PricingPlans = () => {
       const user = JSON.parse(savedUser);
       const email = user.email || user.displayName || 'user@example.com';
 
+      // Get current app URL (origin + port)
+      const currentAppUrl = window.location.origin;
+      console.log("Sending app URL to checkout:", currentAppUrl);
+
       // Create checkout session
       const response = await fetch('/.netlify/functions/checkout-session', {
         method: 'POST',
@@ -36,6 +40,7 @@ const PricingPlans = () => {
         body: JSON.stringify({
           email: email,
           tier: 'premium',
+          appUrl: currentAppUrl,  // Send current app URL
         }),
       });
 
