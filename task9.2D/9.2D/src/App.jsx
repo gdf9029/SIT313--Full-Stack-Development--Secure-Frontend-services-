@@ -6,6 +6,8 @@ import SignUp from './components/SignUp';
 import NewPost from './components/NewPost';
 import FindQuestion from './components/FindQuestion';
 import SignOut from './components/SignOut';
+import PricingPlans from './pages/PricingPlans';
+import Payment from './pages/Payment';
 
 function App() {
     return (
@@ -18,6 +20,8 @@ function App() {
                     <Route path="/new-post" element={<NewPost />} />
                     <Route path="/find-question" element={<FindQuestion />} />
                     <Route path="/signout" element={<SignOut />} />
+                    <Route path="/plans" element={<PricingPlans />} />
+                    <Route path="/payment" element={<Payment />} />
                 </Routes>
             </div>
         </Router>
