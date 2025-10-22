@@ -34,7 +34,7 @@ app.post('/subscribe', (req, res) => {
 
     // Mailgun message data
     const messageData = {
-        from: 'DEV@Deakin <mailgun@YOUR_MAILGUN_DOMAIN>', // Replace with your domain
+        from: 'DEV@Deakin <mailgun@sandboxf85b8e8bde804f439e2fd9cf385064e7.mailgun.org>', 
         to: email, // The email submitted by the user
         subject: 'Welcome to the DEV@Deakin Insider!',
         text: `Hi there,\n\nThank you for subscribing to our daily insider newsletter. We're excited to have you on board!\n\nBest,\nThe DEV@Deakin Team`,
