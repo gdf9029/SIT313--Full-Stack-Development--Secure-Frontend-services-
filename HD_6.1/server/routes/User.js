@@ -1,5 +1,4 @@
 // Import the required modules
-// @ts-nocheck
 const express = require("express")
 const router = express.Router()
 
@@ -13,9 +12,9 @@ const {
 const {
   resetPasswordToken,
   resetPassword,
-} = require("../controllers/ResetPassword")
+} = require("../controllers/resetPassword")
 
-const { auth } = require("../middlewares/auth")
+const { auth } = require("../middleware/auth")
 
 // Routes for Login, Signup, and Authentication
 
