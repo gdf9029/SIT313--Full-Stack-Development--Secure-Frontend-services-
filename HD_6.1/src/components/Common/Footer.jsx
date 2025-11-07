@@ -32,9 +32,9 @@ const Footer = () => {
         <div className="grid gap-10 lg:grid-cols-4">
           {/* About */}
           <div className="flex flex-col gap-4">
-            <img src={Logo} alt="Studynotion logo" className="w-[160px] object-contain" />
+            <img src={Logo} alt="studygo logo" className="w-[160px] object-contain" />
             <p className="text-sm text-richblack-300 max-w-[320px]">
-              Studynotion — interactive, practical and industry-led online courses that
+              studygo — interactive, practical and industry-led online courses that
               help learners launch and level-up careers. Learn at your pace with expert
               instructors and community support.
             </p>
@@ -42,7 +42,7 @@ const Footer = () => {
             <div className="flex items-center gap-3 pt-2">
               <a
                 href="#facebook"
-                aria-label="Studynotion on Facebook"
+                aria-label="studygo on Facebook"
                 className="text-lg hover:text-richblack-50 transition-colors"
                 rel="noopener noreferrer"
               >
@@ -50,7 +50,7 @@ const Footer = () => {
               </a>
               <a
                 href="#google"
-                aria-label="Studynotion on Google"
+                aria-label="studygo on Google"
                 className="text-lg hover:text-richblack-50 transition-colors"
                 rel="noopener noreferrer"
               >
@@ -58,7 +58,7 @@ const Footer = () => {
               </a>
               <a
                 href="#twitter"
-                aria-label="Studynotion on Twitter"
+                aria-label="studygo on Twitter"
                 className="text-lg hover:text-richblack-50 transition-colors"
                 rel="noopener noreferrer"
               >
@@ -66,7 +66,7 @@ const Footer = () => {
               </a>
               <a
                 href="#youtube"
-                aria-label="Studynotion on YouTube"
+                aria-label="studygo on YouTube"
                 className="text-lg hover:text-richblack-50 transition-colors"
                 rel="noopener noreferrer"
               >
@@ -139,7 +139,7 @@ const Footer = () => {
             <div className="mt-4">
               <h4 className="font-medium text-richblack-50 mb-2">Contact</h4>
               <div className="text-sm text-richblack-300 flex flex-col gap-2">
-                <a href="mailto:contact@studynotion.com" className="hover:text-richblack-50 transition-colors">aditya4760.se24@chitkara.edu.in</a>
+                <a href="mailto:contact@studygo.com" className="hover:text-richblack-50 transition-colors">aditya4760.se24@chitkara.edu.in</a>
                 <a href="tel:+918837844103" className="hover:text-richblack-50 transition-colors">+91 9012464329</a>
                 <p className="text-[13px] text-richblack-400 mt-2">Support: Mon — Fri, 9:00 — 18:00 IST</p>
               </div>

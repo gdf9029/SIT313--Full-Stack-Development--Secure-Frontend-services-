@@ -62,7 +62,7 @@ function CourseDetails() {
     setIsActive(
       !isActive.includes(id)
         ? isActive.concat([id])
-        : isActive.filter((e) => e != id)
+  : isActive.filter((e) => e !== id)
     )
   }
 
@@ -87,19 +87,20 @@ function CourseDetails() {
     return <Error />
   }
 
+  const courseDetails = response.data?.courseDetails || {}
+
   const {
-    _id: course_id,
     courseName,
     courseDescription,
     thumbnail,
     price,
     whatYouWillLearn,
-    courseContent,
-    ratingAndReviews,
-    instructor,
-    studentsEnroled,
+    courseContent = [],
+    ratingAndReviews = [],
+    instructor = {},
+    studentsEnroled = [],
     createdAt,
-  } = response.data?.courseDetails
+  } = courseDetails
 
   const handleBuyCourse = () => {
     if (token) {

@@ -74,7 +74,7 @@ export async function BuyCourse(
       currency: orderData.currency,
       amount: amount,
       order_id: orderData.id,
-      name: "StudyNotion",
+      name: "studygo",
       description: "Thank you for Purchasing the Course.",
       image: rzpLogo,
       prefill: {
